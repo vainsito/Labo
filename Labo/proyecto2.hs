@@ -1,7 +1,7 @@
 ----------Actividad 1-----------
 
 --a)
-data Carrera = Matematica | Fisica | Computacion | Astronomia 
+data Carrera = Matematica | Fisica | Computacion | Astronomia deriving Show
 --b)
 titulo :: Carrera -> String
 titulo Matematica = "Licenciatura en Matematica"
@@ -46,14 +46,13 @@ notaGrave xs = minimoElemento xs
 --a)
 type Ingreso = Int
 
-data Cargo = Titular | Asociado | Adjunto | Asistente | Auxiliar deriving (Show)
-data Area = Administrativa | Ensenanza | Economica | Postgrado  
-
+data Cargo = Titular | Asociado | Adjunto | Asistente | Auxiliar deriving Show
+data Area = Administrativa | Ensenanza | Economica | Postgrado  deriving Show 
+                
 data Persona = Decane
             | Docente Cargo 
             | NoDocente Area 
-            | Estudiante Carrera Ingreso
-
+            | Estudiante Carrera Ingreso deriving Show
 --b)
 cuantos_doc :: [Persona] -> Cargo -> Int
 cuantos_doc [] c = 0
@@ -71,8 +70,9 @@ mismocargo Auxiliar Auxiliar = True
 mismocargo _ _ = False
 --d)
 cargoPersona :: Cargo -> Persona -> Bool
-cargoPersona c (Docente a) | mismocargo c a = True
-                           |otherwise = False
+cargoPersona c (Docente a) 
+                | mismocargo c a = True
+                |otherwise = False
 cargoPersona c _ = False
 
 cuantos_doc2 :: [Persona] -> Cargo -> Int
@@ -127,9 +127,59 @@ sonidoCromaticoMM (Nota x y) (Nota h z)
 primerElemento :: [ a ] -> Maybe a
 primerElemento [] = Nothing 
 primerElemento (x:xs) = Just x
-----------Actividad 7-----------
-data Cola = VaciaC | Encolada Persona Cola
+----------Actividad 7----------
+data Cola = VaciaC | Encolada Persona Cola deriving Show
 --a)
 atender :: Cola -> Maybe Cola
 atender VaciaC = Nothing
-atender (Encolada x y) = Just y 
+atender (Encolada x xs) = Just xs 
+--b)
+encolar:: Persona -> Cola -> Cola
+encolar p VaciaC = Encolada p VaciaC
+encolar per (Encolada p cola) = Encolada p (encolar per cola)
+--c)
+busca :: Cola -> Cargo -> Maybe Persona
+busca VaciaC c = Nothing
+busca (Encolada (Docente a) col) c     
+        | cargoPersona c (Docente a) == True = Just (Docente a)
+busca (Encolada _ xs) c = busca xs c 
+--PreguntaB
+--Cola se parece a el tipo recursivo x:"xs" (Listas)
+----------Actividad 8-----------
+data ListaAsoc a b = Vacia | Nodo a b (ListaAsoc a b) deriving (Show, Eq) 
+type Diccionario = ListaAsoc String String
+type Padron = ListaAsoc Int String
+--a)
+type ListaTelefonica = ListaAsoc Int String
+--b)
+--1
+la_long :: ListaAsoc a b -> Int
+la_long Vacia = 0
+la_long (Nodo a b xs) = 1 + la_long xs 
+--2
+la_concat :: ListaAsoc a b -> ListaAsoc a b -> ListaAsoc a b
+la_concat Vacia Vacia = Vacia
+la_concat Vacia (Nodo y s xs) = Nodo y s xs
+la_concat (Nodo a b zs) Vacia = Nodo a b zs
+la_concat (Nodo a b zs) xs = Nodo a b (la_concat xs zs) 
+-- lo probamos con esto la_concat (Nodo "alexis" "Ortiz" Vacia) (Nodo "Estudiante" "Famaf" Vacia)
+--3
+la_agregar :: ListaAsoc a b -> a -> b -> ListaAsoc a b
+la_agregar Vacia a b = (Nodo a b Vacia)
+la_agregar nod a b = (Nodo a b nod)
+--4
+la_pares :: ListaAsoc a b -> [(a,b)]
+la_pares Vacia = []
+la_pares (Nodo a b ys) = (a,b) : la_pares ys
+--5
+la_busca :: Eq a => ListaAsoc a b -> a -> Maybe b
+la_busca Vacia _ = Nothing
+la_busca (Nodo a b xs) c
+        | a == c = Just b
+        | otherwise = la_busca xs c 
+--6
+la_borrar :: Eq a => a -> ListaAsoc a b -> ListaAsoc a b 
+la_borrar _ Vacia = Vacia
+la_borrar c (Nodo a b xs)
+        | a == c = xs
+        | otherwise = Nodo a b (la_borrar c xs)
