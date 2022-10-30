@@ -15,14 +15,17 @@ bool is_prime(int const n)
     return true;
 }
 int nesimoPrimo(int N){
-    int resultado;
+    int resultado, contador=0, posicion=0;
     resultado = 0;
-    for (int contador = 0; contador < N; contador++)
-    {
-        if(is_prime(contador)== true)
-        {
-            resultado  = contador; 
+    while ( contador < N ){
+        if ( is_prime(posicion) == true){
+            resultado = posicion;
+            contador++;
         }
+        else{
+            resultado = resultado;
+        }
+        posicion++;
     }
     return resultado;
 }
